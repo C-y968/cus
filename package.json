@@ -1,0 +1,48 @@
+{
+  "name": "customer-compass",
+  "version": "1.0.0",
+  "description": "客序：拜访录音与客户关系档案工作台",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "concurrently \"node --watch server/index.js\" \"vite\"",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "start:lan": "HOST=0.0.0.0 node server/index.js",
+    "test": "node --test tests/core.test.js",
+    "test:e2e": "playwright test",
+    "backup": "node scripts/backup.mjs",
+    "reset-password": "node scripts/reset-password.mjs",
+    "start:background": "node scripts/service.mjs start",
+    "stop": "node scripts/service.mjs stop",
+    "status": "node scripts/service.mjs status",
+    "test:service": "node --test tests/service.test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
+    "lucide-react": "^1.41.0",
+    "multer": "^2.3.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "concurrently": "^10.0.5",
+    "prettier": "^3.9.6",
+    "vite": "^8.2.2"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=24 <25"
+  }
+}

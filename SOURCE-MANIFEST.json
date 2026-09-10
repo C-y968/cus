@@ -1,0 +1,157 @@
+{
+  "date": "2026-09-08",
+  "files": [
+    {
+      "path": "package.json",
+      "bytes": 1342,
+      "sha256": "ef7bed98caa3b6ed77262197f70866532d0560bfdf40de60be4a80d3fd01a056"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 88048,
+      "sha256": "5cc2422e59e96ecedbf19730a20856452c59b4e1011fd5fede0e8f0c1a2f0687"
+    },
+    {
+      "path": "index.html",
+      "bytes": 626,
+      "sha256": "dd83db614ea925382a7b3cc172cb8452cbb48d5c085b47391623ce55c8bda908"
+    },
+    {
+      "path": "vite.config.js",
+      "bytes": 239,
+      "sha256": "317a72ba29cb6cde3cf123436863ba4a806b3e0786e740770515e6a2d0cec962"
+    },
+    {
+      "path": "playwright.config.js",
+      "bytes": 708,
+      "sha256": "79d57f28bf152206df2fe7677ffc95d87a995a98ee126561adb090eb7d476269"
+    },
+    {
+      "path": "README.md",
+      "bytes": 12244,
+      "sha256": "4a492182d963aac2382d236fc54fa73a6512e328a71508ba98b17b662328e39e"
+    },
+    {
+      "path": "DEPLOYMENT.md",
+      "bytes": 2329,
+      "sha256": "46ed137de0999f239be62e16a75bcad2bef3a9fe2ded44c5afc922a9eb0d9f13"
+    },
+    {
+      "path": "Dockerfile",
+      "bytes": 581,
+      "sha256": "994250e8118eefea2750f465d7e267e2eb413334633a017bd2f23f2c40e9e97c"
+    },
+    {
+      "path": "compose.yaml",
+      "bytes": 287,
+      "sha256": "4ad35ea590f14687a8ca7401dc64bfa8c0f44008d02cbe96a796780d8d25dad9"
+    },
+    {
+      "path": "Caddyfile.example",
+      "bytes": 240,
+      "sha256": "4315c96ee058d7b22e0e3e9cd08cd4a646e4f4ff1bb078c2c90a84402f4810c7"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 84,
+      "sha256": "bc4c84402010ab711b56ac7066d4e587c25a76370c17b055952c30cc5db59814"
+    },
+    {
+      "path": ".dockerignore",
+      "bytes": 93,
+      "sha256": "4e1f175aef70802ee27d3d1970b900c49922fb019ff5bea1098d9a7019c8e85d"
+    },
+    {
+      "path": "启动客序.command",
+      "bytes": 536,
+      "sha256": "d1218774d41ba68351d8faa68632e2b8deb836e95cb783362be57025c6f05df1"
+    },
+    {
+      "path": "停止客序.command",
+      "bytes": 217,
+      "sha256": "688d9153d5673e63babaa3fedde3e6b3e81ec1c268ff3d06d48fb0cfa05edd1a"
+    },
+    {
+      "path": "src/main.jsx",
+      "bytes": 83382,
+      "sha256": "5a10e7db852c80a2883e20d4a76f0625142dc3080133807b5806fedef03d0f4d"
+    },
+    {
+      "path": "src/styles.css",
+      "bytes": 53615,
+      "sha256": "ea58e728efbecab1363ede899a38a01c29cd0d81f0fc9f8a14f2e7b54bee734e"
+    },
+    {
+      "path": "server/ai.js",
+      "bytes": 10772,
+      "sha256": "2300377d422f3e29446ffa94dd808c45d2c0aaa22070d57e6a56214b49d5e27f"
+    },
+    {
+      "path": "server/index.js",
+      "bytes": 24643,
+      "sha256": "61a724fc92e0ab66a6b286609dbac3b06cf06b3143c3ef3fda0b27e03a092ec7"
+    },
+    {
+      "path": "server/store.js",
+      "bytes": 9447,
+      "sha256": "365daea98d80e95cf6f213aca5969567af1d15366850385fc8e573f9512beb5a"
+    },
+    {
+      "path": "scripts/backup.mjs",
+      "bytes": 958,
+      "sha256": "1d80c18fbf04a9304f7e20ab199067b60df29cbff6eca7cafa22ed68717d5824"
+    },
+    {
+      "path": "scripts/reset-password.mjs",
+      "bytes": 861,
+      "sha256": "a835918db227ce60aa94bf56cb027c6212aad5390e5783b4a36c21064a60dd30"
+    },
+    {
+      "path": "scripts/service.mjs",
+      "bytes": 7508,
+      "sha256": "389e04665667aa56c06f33f1254f0038bf218b4fc007edd3f4206cfbe8c5b629"
+    },
+    {
+      "path": "tests/core.test.js",
+      "bytes": 15982,
+      "sha256": "e4d4dd7221205cf35af71f28d64be94ecea564de29f4f27bb18394fd1ef7a004"
+    },
+    {
+      "path": "tests/e2e-server.js",
+      "bytes": 654,
+      "sha256": "2245908835b641260e38406c8a37211cc8c62598f95d970be6f7b5f988969698"
+    },
+    {
+      "path": "tests/service.test.js",
+      "bytes": 4106,
+      "sha256": "d257787884f92d4897a3c694e5cd2802e160d801de19b4d530c1d2022cee4331"
+    },
+    {
+      "path": "tests/ui.spec.js",
+      "bytes": 7962,
+      "sha256": "e5c380bd623295a21b4273151535d41d14b47ec828762e2ae94c278fea8c2f42"
+    },
+    {
+      "path": "public/icon.svg",
+      "bytes": 277,
+      "sha256": "3ef2aca06d6c1edd142efe48f976776a397f3fc2bae74e0d925bf219e882f69b"
+    },
+    {
+      "path": "public/manifest.webmanifest",
+      "bytes": 247,
+      "sha256": "c63611cb0ab271bd8747365083d12d6c42d704565d604af60936823e955ae086"
+    }
+  ],
+  "excluded": [
+    "data/",
+    ".runtime/",
+    ".env",
+    "node_modules/",
+    "dist/",
+    "artifacts/",
+    "test-results/",
+    "backups/",
+    "验收记录.md"
+  ],
+  "notes": "测试中出现的 private-asr-key/private-llm-key 为本地模拟接口的虚构占位值。"
+}
