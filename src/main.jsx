@@ -29,7 +29,6 @@ import {
   Heart,
   Target,
   Link as LinkIcon,
-  LogOut,
   Smartphone,
   RefreshCw,
   AlertCircle,
@@ -92,11 +91,7 @@ async function api(url, options = {}) {
           : undefined,
   });
   const d = await r.json();
-  if (!r.ok) {
-    if (r.status === 401 && url !== "/login")
-      window.dispatchEvent(new Event("expired"));
-    throw new Error(d.error || "请求失败");
-  }
+  if (!r.ok) throw new Error(d.error || "请求失败");
   return d;
 }
 function Button({
@@ -198,73 +193,6 @@ function Status({ status }) {
       )}
       {states[status] || status}
     </span>
-  );
-}
-function Auth({ state, onSuccess }) {
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  return (
-    <main className="auth-page">
-      <div className="auth-form">
-        <div className="auth-form-inner">
-          <div className="wordmark">
-            <span className="brand-symbol">井</span>
-            <span>客序</span>
-          </div>
-          <h2>{state.configured ? "登录" : "设置密码"}</h2>
-
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setBusy(true);
-              setError("");
-              try {
-                await api(state.configured ? "/login" : "/setup", {
-                  method: "POST",
-                  body: { password },
-                });
-                onSuccess();
-              } catch (e) {
-                setError(e.message);
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            <Field
-              label={state.configured ? "工作台密码" : "设置密码（至少 10 位）"}
-            >
-              <input
-                autoFocus
-                type="password"
-                autoComplete={
-                  state.configured ? "current-password" : "new-password"
-                }
-                minLength={state.configured ? 1 : 10}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="输入工作台密码"
-              />
-            </Field>
-            {error && (
-              <p className="error" role="alert">
-                {error}
-              </p>
-            )}
-            <Button variant="primary full" disabled={busy}>
-              {busy
-                ? "正在进入…"
-                : state.configured
-                  ? "进入工作台"
-                  : "进入工作台"}
-              <ArrowUpRight size={18} />
-            </Button>
-          </form>
-        </div>
-      </div>
-    </main>
   );
 }
 function CustomerForm({ value, data, onClose, onSave, onDelete }) {
@@ -1866,7 +1794,6 @@ function SettingsPage({ notify, reload }) {
   const [s, setS] = useState(null);
   const [qr, setQr] = useState("");
   const [busy, setBusy] = useState("");
-  const [pwd, setPwd] = useState({ current: "", next: "" });
   useEffect(() => {
     api("/settings")
       .then(setS)
@@ -2061,46 +1988,6 @@ function SettingsPage({ notify, reload }) {
               保存并继续处理
             </Button>
           </div>
-          <div className="settings-card">
-            <h2>访问密码</h2>
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                try {
-                  await api("/password", { method: "POST", body: pwd });
-                  setPwd({ current: "", next: "" });
-                  notify("密码已更新，其他设备需重新登录");
-                } catch (e) {
-                  notify(e.message, true);
-                }
-              }}
-            >
-              <div className="form-grid">
-                <Field label="当前密码">
-                  <input
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    value={pwd.current}
-                    onChange={(e) =>
-                      setPwd({ ...pwd, current: e.target.value })
-                    }
-                  />
-                </Field>
-                <Field label="新密码（至少 10 位）">
-                  <input
-                    type="password"
-                    autoComplete="new-password"
-                    minLength={10}
-                    required
-                    value={pwd.next}
-                    onChange={(e) => setPwd({ ...pwd, next: e.target.value })}
-                  />
-                </Field>
-              </div>
-              <Button>更新密码</Button>
-            </form>
-          </div>
         </section>
         <aside>
           <div className="settings-card phone-card">
@@ -2143,7 +2030,7 @@ function SettingsPage({ notify, reload }) {
           </div>
           <details className="settings-card inline-help">
             <summary>关于工作台</summary>
-            <p>单人使用，同密码共享全部资料。电脑需保持运行。</p>
+            <p>当前工作台不设访问密码，任何获得网址的人均可访问全部资料。</p>
           </details>
         </aside>
       </div>
@@ -2296,7 +2183,6 @@ function FactEditor({ fact, onClose, notify, reload }) {
   );
 }
 function App() {
-  const [auth, setAuth] = useState(null);
   const [data, setData] = useState(null);
   const [page, setPage] = useState(
     window.location.pathname === "/capture" ? "capture" : "dashboard",
@@ -2321,18 +2207,9 @@ function App() {
       notify(e.message, true);
     }
   }
-  const checkAuth = () =>
-    api("/auth")
-      .then(setAuth)
-      .catch((e) => notify(e.message, true));
   useEffect(() => {
-    checkAuth();
-    window.addEventListener("expired", checkAuth);
-    return () => window.removeEventListener("expired", checkAuth);
+    reload();
   }, []);
-  useEffect(() => {
-    if (auth?.authenticated) reload();
-  }, [auth]);
   useEffect(() => {
     if (!data?.recent.some((v) => busyStates.includes(v.status))) return;
     const t = setTimeout(reload, 4000);
@@ -2354,14 +2231,6 @@ function App() {
   function openCustomer(id) {
     navigate("customers", id);
   }
-  if (!auth)
-    return (
-      <div className="loading screen">
-        <Loader2 className="spin" />
-        正在打开客序…{toast && <p className="error">{toast.message}</p>}
-      </div>
-    );
-  if (!auth.authenticated) return <Auth state={auth} onSuccess={checkAuth} />;
   if (!data)
     return (
       <div className="loading screen">
@@ -2397,23 +2266,12 @@ function App() {
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <button
-            onClick={async () => {
-              if (recording) {
-                notify("请先结束录音", true);
-                return;
-              }
-              await api("/logout", { method: "POST" });
-              setData(null);
-              checkAuth();
-            }}
-          >
+          <div className="sidebar-user">
             <span className="user-avatar">我</span>
             <span>
-              我的工作台<small>个人版 · 私有资料</small>
+              我的工作台<small>公开访问</small>
             </span>
-            <LogOut size={16} />
-          </button>
+          </div>
         </div>
       </aside>
       <div className="main-shell">

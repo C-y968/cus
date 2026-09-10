@@ -339,7 +339,8 @@ small {
 .sidebar-note span {
   color: #9aa290;
 }
-.sidebar-bottom > button {
+.sidebar-bottom > button,
+.sidebar-user {
   border-top: 1px solid #dce1d4;
   padding: 18px 4px 0;
   display: flex;
@@ -349,7 +350,8 @@ small {
   text-align: left;
   font-size: 12px;
 }
-.sidebar-bottom > button > span:nth-child(2) {
+.sidebar-bottom > button > span:nth-child(2),
+.sidebar-user > span:nth-child(2) {
   flex: 1;
 }
 .sidebar-bottom small {

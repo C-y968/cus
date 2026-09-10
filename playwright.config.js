@@ -21,7 +21,7 @@ export default defineConfig({
   },
   webServer: {
     command: "node tests/e2e-server.js",
-    url: "http://127.0.0.1:4389/api/auth",
+    url: "http://127.0.0.1:4389/api/health",
     reuseExistingServer: false,
     timeout: 20000,
   },

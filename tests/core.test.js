@@ -155,7 +155,6 @@ test("明确行动保存，推断日期保持空白，模型异常不会部分�
 let server,
   provider,
   base,
-  cookie,
   customerId,
   visitId,
   providerRequests = 0;
@@ -164,13 +163,12 @@ function wait(ms) {
 }
 async function call(
   route,
-  { method = "GET", body, headers = {}, anonymous = false, form = false } = {},
+  { method = "GET", body, headers = {}, form = false } = {},
 ) {
   const r = await fetch(base + route, {
     method,
     headers: {
       "X-Compass-Request": "1",
-      ...(anonymous ? {} : { Cookie: cookie || "" }),
       ...(form ? {} : { "Content-Type": "application/json" }),
       ...headers,
     },
@@ -292,7 +290,7 @@ before(async () => {
   server.stderr.on("data", (c) => (logs += c));
   for (let i = 0; i < 80; i++) {
     try {
-      await fetch(base + "/api/auth");
+      await fetch(base + "/api/health");
       return;
     } catch {
       await wait(100);
@@ -307,21 +305,9 @@ after(async () => {
   await wait(150);
   fs.rmSync(dir, { recursive: true, force: true });
 });
-test("HTTP 登录隔离、首次设置、跨站请求拦截", async () => {
-  let response = await call("/api/bootstrap", { anonymous: true });
-  assert.equal(response.r.status, 401);
-  response = await call("/api/setup", {
-    method: "POST",
-    body: { password: "test-password-12345" },
-    anonymous: true,
-  });
+test("HTTP 匿名访问与跨站请求拦截", async () => {
+  let response = await call("/api/bootstrap");
   assert.equal(response.r.status, 200);
-  cookie = response.r.headers.get("set-cookie").split(";")[0];
-  response = await call("/api/setup", {
-    method: "POST",
-    body: { password: "another-password" },
-  });
-  assert.equal(response.r.status, 409);
   response = await call("/api/customers", {
     method: "POST",
     body: {},
@@ -381,15 +367,9 @@ test("创建层级客户，保存录音，未配置模型时不发外部请求",
   );
   assert.equal((await untilDone(visitId)).status, "waiting_transcription");
   assert.equal(providerRequests, 0);
-  const audio = await fetch(base + "/api/visits/" + visitId + "/audio", {
-    headers: { Cookie: cookie },
-  });
+  const audio = await fetch(base + "/api/visits/" + visitId + "/audio");
   assert.equal(audio.status, 200);
   assert.equal((await audio.arrayBuffer()).byteLength, wav.length);
-  assert.equal(
-    (await fetch(base + "/api/visits/" + visitId + "/audio")).status,
-    401,
-  );
 });
 test("配置接口后跑通录音→转写→三维档案，密钥不回显", async () => {
   const url = "http://127.0.0.1:" + provider.address().port + "/v1";
@@ -457,7 +437,7 @@ test("第二次拜访变化待核对，人工替换保留历史，导出含证�
   assert.ok(!JSON.stringify(exported).includes("private-asr-key"));
   assert.ok(exported.customers[0].visits[0].transcript);
 });
-test("错误文件不留垃圾，删除拜访清理独有事实，登录可撤销", async () => {
+test("错误文件不留垃圾，删除拜访清理独有事实", async () => {
   const prior = fs.readdirSync(path.join(dir, "integration", "audio")).length;
   const bad = new FormData();
   bad.set("customer_id", "missing");
@@ -476,6 +456,4 @@ test("错误文件不留垃圾，删除拜访清理独有事实，登录可撤�
   );
   const c = (await call("/api/customers/" + customerId)).data;
   assert.ok(c.facts.every((f) => f.sources.length > 0));
-  await call("/api/logout", { method: "POST" });
-  assert.equal((await call("/api/bootstrap")).r.status, 401);
 });

@@ -1,8 +1,6 @@
 import express from "express";
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
 import multer from "multer";
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
@@ -71,104 +69,6 @@ const required = (value, label, max = 200) => {
 };
 const opt = (value, max = 2000) =>
   typeof value === "string" ? value.trim().slice(0, max) : "";
-function session(req) {
-  const raw = (req.headers.cookie || "")
-    .split(";")
-    .map((s) => s.trim())
-    .find((s) => s.startsWith("compass_session="))
-    ?.split("=")[1];
-  if (!raw) return null;
-  return db
-    .prepare("SELECT token FROM sessions WHERE token=? AND expires>?")
-    .get(crypto.createHash("sha256").update(raw).digest("hex"), Date.now());
-}
-function login(res) {
-  const token = crypto.randomBytes(32).toString("hex");
-  db.prepare("DELETE FROM sessions WHERE expires<?").run(Date.now());
-  db.prepare("INSERT INTO sessions VALUES (?,?)").run(
-    crypto.createHash("sha256").update(token).digest("hex"),
-    Date.now() + 7 * 86400000,
-  );
-  res.cookie("compass_session", token, {
-    httpOnly: true,
-    sameSite: "strict",
-    secure: process.env.COOKIE_SECURE === "1",
-    maxAge: 7 * 86400000,
-    path: "/",
-  });
-}
-app.get("/api/auth", (req, res) =>
-  res.json({ configured: !!getKV("password"), authenticated: !!session(req) }),
-);
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 20,
-  standardHeaders: "draft-8",
-  legacyHeaders: false,
-  message: { error: "尝试过于频繁，请 15 分钟后重试" },
-});
-app.post("/api/setup", authLimiter, (req, res) => {
-  if (getKV("password")) throw fail("已设置密码，请登录", 409);
-  const addr = req.socket.remoteAddress;
-  if (
-    req.headers["x-forwarded-for"] ||
-    !["localhost", "127.0.0.1", "[::1]", "::1"].includes(req.hostname)
-  )
-    throw fail("首次设置请在运行工具的电脑上完成", 403);
-  if (!["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(addr))
-    throw fail("首次设置请在运行工具的电脑上完成", 403);
-  const password = required(req.body.password, "密码", 200);
-  if (password.length < 10) throw fail("请使用至少 10 位密码");
-  const salt = crypto.randomBytes(16).toString("hex");
-  setKV("password", {
-    salt,
-    hash: crypto.scryptSync(password, salt, 64).toString("hex"),
-  });
-  login(res);
-  res.json({ ok: true });
-});
-app.post("/api/login", authLimiter, (req, res) => {
-  const p = getKV("password");
-  const input = opt(req.body.password, 200);
-  if (
-    !p ||
-    !crypto.timingSafeEqual(
-      crypto.scryptSync(input, p.salt, 64),
-      Buffer.from(p.hash, "hex"),
-    )
-  )
-    throw fail("密码不正确", 401);
-  login(res);
-  res.json({ ok: true });
-});
-app.use("/api", (req, res, next) =>
-  session(req) ? next() : res.status(401).json({ error: "请先登录" }),
-);
-app.post("/api/logout", (req, res) => {
-  const s = session(req);
-  if (s) db.prepare("DELETE FROM sessions WHERE token=?").run(s.token);
-  res.clearCookie("compass_session", { path: "/" }).json({ ok: true });
-});
-app.post("/api/password", authLimiter, (req, res) => {
-  const p = getKV("password");
-  if (
-    !crypto.timingSafeEqual(
-      crypto.scryptSync(opt(req.body.current, 200), p.salt, 64),
-      Buffer.from(p.hash, "hex"),
-    )
-  )
-    throw fail("当前密码不正确", 401);
-  const next = required(req.body.next, "新密码", 200);
-  if (next.length < 10) throw fail("新密码至少 10 位");
-  const salt = crypto.randomBytes(16).toString("hex");
-  setKV("password", {
-    salt,
-    hash: crypto.scryptSync(next, salt, 64).toString("hex"),
-  });
-  db.prepare("DELETE FROM sessions").run();
-  login(res);
-  res.json({ ok: true });
-});
 app.get("/api/bootstrap", (req, res) => {
   res.json({
     companies: db.prepare("SELECT * FROM companies ORDER BY name").all(),

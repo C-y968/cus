@@ -7,15 +7,6 @@ test("电脑端与手机端完整工作流", async ({ page }) => {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: "设置密码", exact: true }),
-  ).toBeVisible();
-  await page.screenshot({
-    path: path.join(screenshots, "desktop-login.png"),
-    fullPage: true,
-  });
-  await page.getByPlaceholder("输入工作台密码").fill("ui-test-password-123");
-  await page.getByRole("button", { name: "进入工作台" }).click();
   await expect(page.getByText("暂无客户")).toBeVisible();
   await page.getByRole("button", { name: "体验虚构示例" }).click();
   await expect(
