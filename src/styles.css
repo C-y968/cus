@@ -24,6 +24,7 @@
 }
 body {
   margin: 0;
+  background: #f5f6f8;
 }
 button,
 input,
@@ -408,13 +409,16 @@ small {
   min-width: 0;
 }
 .topbar {
-  height: 56px;
+  height: 52px;
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 36px;
   background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 .topbar > span,
 .topbar > div {
@@ -488,15 +492,16 @@ small {
   font-weight: 450;
 }
 .overview-strip strong {
-  font-size: 36px;
+  font-size: 34px;
   display: flex;
   align-items: baseline;
   gap: 6px;
   margin-top: 8px;
-  font-weight: 600;
+  font-weight: 650;
   line-height: 1;
-  letter-spacing: -1px;
+  letter-spacing: -1.5px;
   color: var(--ink);
+  font-family: "Inter", "PingFang SC", sans-serif;
 }
 .overview-strip small {
   font-size: 12px;
@@ -2453,9 +2458,9 @@ audio {
     display: flex;
     position: fixed;
     inset: auto 0 0;
-    background: #fafcf7f5;
-    backdrop-filter: blur(15px);
-    border-top: 1px solid #dfe6d7;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
     z-index: 40;
     justify-content: space-around;
     padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
@@ -2464,14 +2469,15 @@ audio {
     display: flex;
     align-items: center;
     flex-direction: column;
-    gap: 5px;
-    color: #a0ad91;
+    gap: 4px;
+    color: #9ca3af;
     min-width: 60px;
     font-size: 10px;
     padding: 3px;
+    font-weight: 500;
   }
   .mobile-nav button.active {
-    color: #3f6433;
+    color: var(--green);
   }
   .toast {
     left: 50%;
