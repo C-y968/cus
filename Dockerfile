@@ -5,6 +5,7 @@ RUN npm ci
 COPY index.html vite.config.js ./
 COPY src ./src
 COPY public ./public
+# bust-cache: 2026-09-11
 RUN npm run build
 
 FROM node:24-bookworm-slim
