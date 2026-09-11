@@ -1,15 +1,15 @@
 :root {
   font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
-  color: #0f172a;
-  background: #f8fafc;
+  color: #09090B;
+  background: #EFEFEB;
   font-synthesis: none;
   --green: #059669;
   --green-mid: #10b981;
   --green-soft: #ecfdf5;
-  --ink: #0f172a;
-  --ink2: #1e293b;
-  --muted: #64748b;
-  --line: #e2e8f0;
+  --ink: #09090B;
+  --ink2: #3F3F46;
+  --muted: #71717A;
+  --line: #E4E4E7;
   --paper: #ffffff;
   --amber: #d97706;
   --serif: "Iowan Old Style", "Songti SC", "STSong", serif;
@@ -25,7 +25,7 @@
 }
 body {
   margin: 0;
-  background: #f8fafc;
+  background: #EFEFEB;
 }
 button,
 input,
@@ -157,18 +157,18 @@ small {
   box-shadow: var(--shadow-sm);
 }
 .button:hover:not(:disabled) {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  background: #F4F4F5;
+  border-color: #D4D4D8;
 }
 .button.primary {
-  background: var(--green);
-  border-color: var(--green);
+  background: #18181B;
+  border-color: #18181B;
   color: #fff;
-  box-shadow: 0 1px 3px rgba(22,101,52,0.25);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
 }
 .button.primary:hover:not(:disabled) {
-  background: var(--green-mid);
-  border-color: var(--green-mid);
+  background: #27272A;
+  border-color: #27272A;
 }
 .button.danger-text {
   color: #dc2626;
@@ -427,7 +427,7 @@ small {
   align-items: center;
   gap: 12px;
   font-size: 12px;
-  color: #6b7280;
+  color: #71717A;
 }
 .today {
   font-size: 12px;
@@ -1055,8 +1055,8 @@ small {
   border-bottom: 2px solid transparent;
 }
 .tabs button.active {
-  border-color: #059669;
-  color: #059669;
+  border-color: #18181B;
+  color: #18181B;
 }
 .tabs span {
   font-size: 10px;
@@ -1494,8 +1494,8 @@ input[type="checkbox"] {
 .record-button {
   width: 66px;
   height: 66px;
-  background: #059669;
-  color: #f6f7ef;
+  background: #18181B;
+  color: #FAFAFA;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1669,9 +1669,9 @@ audio {
 .success-mark {
   width: 84px;
   height: 84px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  color: #059669;
+  background: #F4F4F5;
+  border: 1px solid #D4D4D8;
+  color: #18181B;
   border-radius: 50%;
   display: flex;
   align-items: center;
