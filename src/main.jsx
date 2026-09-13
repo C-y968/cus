@@ -314,52 +314,105 @@ function CustomerForm({ value, data, onClose, onSave, onDelete }) {
     </Modal>
   );
 }
+function RelationshipTrace() {
+  return (
+    <svg
+      className="relationship-trace"
+      viewBox="0 0 620 300"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="trace-sage" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#78d6b0" stopOpacity="0.24" />
+          <stop offset="0.48" stopColor="#43bfae" stopOpacity="0.78" />
+          <stop offset="1" stopColor="#b8e86f" stopOpacity="0.5" />
+        </linearGradient>
+        <linearGradient id="trace-blue" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stopColor="#8adfc3" stopOpacity="0.16" />
+          <stop offset="0.62" stopColor="#50c7bd" stopOpacity="0.62" />
+          <stop offset="1" stopColor="#a7dc92" stopOpacity="0.34" />
+        </linearGradient>
+      </defs>
+      <g fill="none" strokeLinecap="round">
+        <path
+          className="trace-line trace-line-main"
+          d="M-20 242C82 222 96 86 196 104c88 16 80 124 168 110 94-15 95-154 276-142"
+          stroke="url(#trace-sage)"
+        />
+        <path
+          className="trace-line trace-line-secondary"
+          d="M-18 270C100 250 113 134 218 150c92 14 94 104 170 88 83-18 116-124 252-98"
+          stroke="url(#trace-blue)"
+        />
+        <path
+          className="trace-line trace-line-fine"
+          d="M34 302c86-76 106-152 194-140 79 11 108 82 176 57 66-24 96-92 230-88"
+          stroke="#7bd3ad"
+        />
+        <path
+          className="trace-line trace-line-fine trace-line-late"
+          d="M146 310c42-80 75-110 134-104 70 7 91 61 152 34 58-26 88-70 190-66"
+          stroke="#58bfb5"
+        />
+      </g>
+      <g className="trace-nodes">
+        <circle cx="196" cy="104" r="4" />
+        <circle cx="364" cy="214" r="5" />
+        <circle cx="498" cy="120" r="3.5" />
+        <circle className="trace-node-accent" cx="552" cy="91" r="6" />
+      </g>
+    </svg>
+  );
+}
 function Dashboard({ data, openCustomer, navigate, setModal, notify, reload }) {
   const reviews = data.customers.reduce((s, c) => s + c.review_count, 0);
+  const metrics = [
+    ["客户档案", data.customers.length, "位", Users],
+    [
+      "合作公司",
+      new Set(data.customers.map((c) => c.company_id)).size,
+      "家",
+      Building2,
+    ],
+    ["待跟进事项", data.actions.length, "项", CheckCircle2],
+    ["待核对信息", reviews, "条", AlertCircle],
+  ];
   return (
     <>
-      <div className="page-heading">
-        <div>
-          <h1>工作台</h1>
+      <section className="dashboard-hero">
+        <div className="hero-copy">
+          <span className="hero-kicker">客户关系工作台</span>
+          <h1>
+            <span>记录每一次关系维护，</span>
+            <span>让客户档案随交流持续生长。</span>
+          </h1>
+          <p>
+            从拜访录音、客户判断到跟进行动，统一沉淀为可追溯、可持续更新的关系脉络。
+          </p>
+          <Button
+            variant="primary"
+            icon={Mic}
+            onClick={() => navigate("capture")}
+          >
+            记录一次拜访
+          </Button>
         </div>
-        <Button
-          variant="primary"
-          icon={Mic}
-          onClick={() => navigate("capture")}
-        >
-          记录一次拜访
-        </Button>
-      </div>
-      <section className="overview-strip">
-        <div>
-          <span>客户档案</span>
-          <strong>
-            {String(data.customers.length).padStart(2, "0")}
-            <small>位</small>
-          </strong>
+        <div className="hero-visual">
+          <RelationshipTrace />
+          <span className="trace-caption">关系轨迹 · 持续更新</span>
         </div>
-        <div>
-          <span>合作公司</span>
-          <strong>
-            {String(
-              new Set(data.customers.map((c) => c.company_id)).size,
-            ).padStart(2, "0")}
-            <small>家</small>
-          </strong>
-        </div>
-        <div>
-          <span>待跟进事项</span>
-          <strong>
-            {String(data.actions.length).padStart(2, "0")}
-            <small>项</small>
-          </strong>
-        </div>
-        <div>
-          <span>待核对信息</span>
-          <strong className={reviews ? "amber" : ""}>
-            {String(reviews).padStart(2, "0")}
-            <small>条</small>
-          </strong>
+        <div className="hero-metrics">
+          {metrics.map(([label, value, unit, Icon], index) => (
+            <div className="hero-metric" key={label}>
+              <span className="metric-index">0{index + 1}</span>
+              <Icon size={15} strokeWidth={1.65} />
+              <span className="metric-label">{label}</span>
+              <strong className={label === "待核对信息" && value ? "amber" : ""}>
+                {String(value).padStart(2, "0")}
+                <small>{unit}</small>
+              </strong>
+            </div>
+          ))}
         </div>
       </section>
       <div className="dashboard-grid">
@@ -473,7 +526,23 @@ function Dashboard({ data, openCustomer, navigate, setModal, notify, reload }) {
           <section className="followup-panel">
             <div className="section-heading">
               <h2>待跟进</h2>
-              <span className="round-count">{data.actions.length}</span>
+              <div className="followup-heading-actions">
+                <span className="round-count">{data.actions.length}</span>
+                <button
+                  className="followup-add"
+                  onClick={() => {
+                    if (data.customers.length) {
+                      setModal({ type: "action" });
+                    } else {
+                      notify("请先创建客户，再添加跟进事项");
+                      setModal({ type: "customer" });
+                    }
+                  }}
+                >
+                  <Plus size={14} />
+                  添加
+                </button>
+              </div>
             </div>
 
             {data.actions.length ? (
@@ -511,6 +580,11 @@ function Dashboard({ data, openCustomer, navigate, setModal, notify, reload }) {
               <div className="small-empty">
                 <CheckCircle2 size={28} />
                 <p>暂无待跟进事项</p>
+                <small>
+                  {data.customers.length
+                    ? "添加下一步行动，持续推进客户关系"
+                    : "先创建客户，再为其安排跟进"}
+                </small>
               </div>
             )}
           </section>
@@ -2037,8 +2111,11 @@ function SettingsPage({ notify, reload }) {
     </>
   );
 }
-function SimpleFormModal({ modal, onClose, reload, notify }) {
+function SimpleFormModal({ modal, data, onClose, reload, notify }) {
   const [value, setValue] = useState(modal.value?.name || "");
+  const [customerId, setCustomerId] = useState(
+    modal.customer_id || data.customers[0]?.id || "",
+  );
   const [due, setDue] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -2066,7 +2143,7 @@ function SimpleFormModal({ modal, onClose, reload, notify }) {
                 body: org
                   ? { name: value }
                   : {
-                      customer_id: modal.customer_id,
+                      customer_id: customerId,
                       text: value,
                       due_date: due,
                     },
@@ -2082,6 +2159,21 @@ function SimpleFormModal({ modal, onClose, reload, notify }) {
           }
         }}
       >
+        {!org && !modal.customer_id && (
+          <Field label="跟进客户">
+            <select
+              required
+              value={customerId}
+              onChange={(e) => setCustomerId(e.target.value)}
+            >
+              {data.customers.map((customer) => (
+                <option value={customer.id} key={customer.id}>
+                  {customer.name} · {customer.company}
+                </option>
+              ))}
+            </select>
+          </Field>
+        )}
         <Field label={org ? "名称" : "跟进内容"}>
           <input
             required
@@ -2396,7 +2488,7 @@ function App() {
       {["organization", "action"].includes(modal?.type) && (
         <SimpleFormModal
           key={modal.type + (modal.value?.id || "")}
-          {...{ modal, reload, notify }}
+          {...{ modal, data, reload, notify }}
           onClose={() => setModal(null)}
         />
       )}
