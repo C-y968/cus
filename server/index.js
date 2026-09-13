@@ -517,85 +517,186 @@ app.get("/api/customers/:id/export", (req, res) => {
 app.post("/api/demo", (req, res) => {
   if (db.prepare("SELECT id FROM visits WHERE is_demo=1").get())
     throw fail("示例已存在，可在客户档案查看");
-  const cid = id();
-  transaction(() => {
-    const did = departmentFor({
-      company: "澄川科技（示例）",
-      department: "数字化业务部",
-    });
-    db.prepare("INSERT INTO customers VALUES (?,?,?,?,?,?,?)").run(
-      cid,
-      did,
-      "林知远（示例）",
-      "数字化业务负责人",
-      "",
-      "虚构示例，仅用于体验。可在编辑客户中删除。",
-      now(),
-    );
-    const vid = id();
-    const transcript =
-      "林知远：我们在评估华东三个工厂的设备数据整合，第一阶段先做苏州工厂。\n林知远：我希望月底能拿出可量化的试点结果，让内部团队对投入产出有共识。\n林知远：技术材料可以提前发我，工作日上午沟通比较方便。我周末喜欢徒步。\n销售：我会先发试点方案和同类工厂案例给您。";
-    db.prepare(
-      "INSERT INTO visits (id,customer_id,title,happened_at,created_at,transcript,status,is_demo) VALUES (?,?,?,?,?,?,?,?)",
-    ).run(
-      vid,
-      cid,
-      "首次拜访 · 试点需求沟通",
-      now(),
-      now(),
-      transcript,
-      "done",
-      1,
-    );
-  });
-  const v = db.prepare("SELECT * FROM visits WHERE customer_id=?").get(cid);
-  applyExtraction(
-    v,
+
+  const demoCases = [
     {
-      summary:
-        "明确以苏州工厂作为首个试点，关注可量化的投入产出；后续发送试点方案和案例。",
-      facts: [
+      company: "澄川科技",
+      department: "数字化业务部",
+      name: "林知远",
+      title: "数字化业务负责人",
+      contact: "138****6721",
+      notes: "华东制造业数字化转型核心决策人，对试点结果量化要求高。",
+      visits: [
         {
-          dimension: "business",
-          field: "当前项目",
-          value: "华东三个工厂设备数据整合，先做苏州工厂试点。",
-          quote: "我们在评估华东三个工厂的设备数据整合，第一阶段先做苏州工厂。",
-          confidence: 1,
+          title: "首次拜访 · 试点需求沟通",
+          daysAgo: 3,
+          transcript:
+            "林知远：我们在评估华东三个工厂的设备数据整合，第一阶段先做苏州工厂。\n林知远：我希望月底能拿出可量化的试点结果，让内部团队对投入产出有共识。\n林知远：技术材料可以提前发我，工作日上午沟通比较方便。我周末喜欢徒步。\n销售：我会先发试点方案和同类工厂案例给您。",
+          summary:
+            "明确以苏州工厂作为首个试点，关注可量化的投入产出；后续发送试点方案和案例。",
+          facts: [
+            { dimension: "business", field: "当前项目", value: "华东三个工厂设备数据整合，先做苏州工厂试点。", quote: "我们在评估华东三个工厂的设备数据整合，第一阶段先做苏州工厂。", confidence: 1 },
+            { dimension: "needs", field: "工作目标", value: "月底展示可量化的试点结果，推动内部对投入产出达成共识。", quote: "我希望月底能拿出可量化的试点结果，让内部团队对投入产出有共识。", confidence: 1 },
+            { dimension: "personal", field: "沟通偏好", value: "技术材料提前发送，工作日上午沟通。", quote: "技术材料可以提前发我，工作日上午沟通比较方便。", confidence: 1 },
+            { dimension: "personal", field: "兴趣爱好", value: "周末徒步。", quote: "我周末喜欢徒步。", confidence: 1 },
+          ],
+          actions: [
+            { text: "发送试点方案和同类工厂案例", quote: "我会先发试点方案和同类工厂案例给您。" },
+          ],
         },
         {
-          dimension: "needs",
-          field: "工作目标",
-          value: "月底展示可量化的试点结果，推动内部对投入产出达成共识。",
-          quote:
-            "我希望月底能拿出可量化的试点结果，让内部团队对投入产出有共识。",
-          confidence: 1,
-        },
-        {
-          dimension: "personal",
-          field: "沟通偏好",
-          value: "技术材料提前发送，工作日上午沟通。",
-          quote: "技术材料可以提前发我，工作日上午沟通比较方便。",
-          confidence: 1,
-        },
-        {
-          dimension: "personal",
-          field: "兴趣爱好",
-          value: "周末徒步。",
-          quote: "我周末喜欢徒步。",
-          confidence: 1,
-        },
-      ],
-      actions: [
-        {
-          text: "发送试点方案和同类工厂案例",
-          quote: "我会先发试点方案和同类工厂案例给您。",
-          due_date: "",
+          title: "第二次拜访 · 苏州工厂方案确认",
+          daysAgo: 1,
+          transcript:
+            "林知远：方案收到了，苏州工厂的数据采集点比我们预估多，需要调整设备接入范围。\n林知远：下周二我带工厂厂长一起开会，到时候把现场的问题都过一遍。\n销售：好的，我提前准备好设备接入清单和工期排期。",
+          summary: "苏州工厂采集点需调整，下周二带厂长一起确认现场问题。",
+          facts: [
+            { dimension: "business", field: "项目进展", value: "苏州工厂数据采集点超出预估，需调整设备接入范围。", quote: "苏州工厂的数据采集点比我们预估多，需要调整设备接入范围。", confidence: 1 },
+            { dimension: "needs", field: "近期安排", value: "下周二带厂长开会，现场过一遍问题。", quote: "下周二我带工厂厂长一起开会，到时候把现场的问题都过一遍。", confidence: 0.95 },
+          ],
+          actions: [
+            { text: "准备设备接入清单和工期排期", quote: "我提前准备好设备接入清单和工期排期。" },
+          ],
         },
       ],
     },
-    true,
-  );
-  res.json({ id: cid });
+    {
+      company: "云墨文化",
+      department: "内容运营部",
+      name: "苏婉清",
+      title: "内容运营总监",
+      contact: "wx_suwq",
+      notes: "内容行业资深从业者，关注创作者生态和分发效率。",
+      visits: [
+        {
+          title: "行业活动交流 · 创作者平台痛点",
+          daysAgo: 7,
+          transcript:
+            "苏婉清：现在最大的痛点是创作者分层运营没有好工具，头部和腰部完全不同节奏。\n苏婉清：我们试过两套系统，数据打通太麻烦，运营同事每天要花两小时手动导。\n苏婉清：如果有能统一分层看板的方案，我可以安排产品团队对接。\n销售：我们的分层看板方案正好解决这个痛点，我会后发您详细文档。",
+          summary: "创作者分层运营工具是核心痛点，现有系统数据难打通；有产品对接意愿。",
+          facts: [
+            { dimension: "business", field: "核心痛点", value: "创作者分层运营缺乏统一工具，两套系统数据打通困难。", quote: "现在最大的痛点是创作者分层运营没有好工具，头部和腰部完全不同节奏。", confidence: 1 },
+            { dimension: "needs", field: "效率损失", value: "运营团队每天花两小时手动导数据。", quote: "运营同事每天要花两小时手动导。", confidence: 0.95 },
+            { dimension: "needs", field: "决策权", value: "可安排产品团队对接评估方案。", quote: "如果有能统一分层看板的方案，我可以安排产品团队对接。", confidence: 0.9 },
+          ],
+          actions: [
+            { text: "发送分层看板方案详细文档", quote: "我们的分层看板方案正好解决这个痛点，我会后发您详细文档。" },
+            { text: "约产品团队演示会议", quote: "我可以安排产品团队对接。" },
+          ],
+        },
+      ],
+    },
+    {
+      company: "鼎信金融",
+      department: "风控技术部",
+      name: "陈柏霖",
+      title: "风控技术总监",
+      contact: "chenbl@dingxin.com",
+      notes: "金融行业对合规和安全要求极高，是较难进入的客户。",
+      visits: [
+        {
+          title: "初步接洽 · 风控场景了解",
+          daysAgo: 14,
+          transcript:
+            "陈柏霖：我们风控规则引擎更新频率很高，业务侧改规则，技术侧要当天生效。\n陈柏霖：合规审计要求所有规则变更可追溯，现在靠人盯容易漏。\n陈柏霖：我对新供应商合作比较谨慎，需要先过安全评估。\n销售：理解，我们会配合完成安全评估问卷，也提供同业合规案例。",
+          summary: "风控规则引擎高频更新需可追溯，合规要求严格；需先过安全评估。",
+          facts: [
+            { dimension: "business", field: "核心场景", value: "风控规则引擎高频更新，业务侧改规则当天需生效。", quote: "我们风控规则引擎更新频率很高，业务侧改规则，技术侧要当天生效。", confidence: 1 },
+            { dimension: "needs", field: "合规要求", value: "所有规则变更可追溯，当前靠人工盯容易遗漏。", quote: "合规审计要求所有规则变更可追溯，现在靠人盯容易漏。", confidence: 1 },
+            { dimension: "personal", field: "合作风格", value: "对新供应商谨慎，需先过安全评估。", quote: "我对新供应商合作比较谨慎，需要先过安全评估。", confidence: 0.95 },
+          ],
+          actions: [
+            { text: "完成安全评估问卷并提供合规案例", quote: "我们会配合完成安全评估问卷，也提供同业合规案例。" },
+          ],
+        },
+      ],
+    },
+    {
+      company: "绿源农业",
+      department: "智慧农业事业部",
+      name: "周明远",
+      title: "事业部总经理",
+      contact: "139****8432",
+      notes: "农业科技领域新锐，已进入商务谈判阶段。",
+      visits: [
+        {
+          title: "需求确认 · 智慧大棚方案",
+          daysAgo: 5,
+          transcript:
+            "周明远：我们五个大棚试点已经跑了一轮，数据采集的稳定性比预期好很多。\n周明远：下一步想扩展到二十个棚，但预算需要集团审批，走流程大概两周。\n周明远：这周内我会把内部立项材料准备完，你那边合同模板先发我看看。\n销售：合同模板今天就能发，我会标注可协商的条款。",
+          summary: "五棚试点成功，计划扩展至二十棚；预算审批约两周，需提供合同模板。",
+          facts: [
+            { dimension: "business", field: "试点进展", value: "五个大棚试点已完成，数据采集稳定性优于预期。", quote: "我们五个大棚试点已经跑了一轮，数据采集的稳定性比预期好很多。", confidence: 1 },
+            { dimension: "business", field: "扩展计划", value: "计划扩展到二十个棚，预算需集团审批约两周。", quote: "下一步想扩展到二十个棚，但预算需要集团审批，走流程大概两周。", confidence: 0.95 },
+            { dimension: "needs", field: "商务进展", value: "本周完成内部立项，需要合同模板提前审阅。", quote: "这周内我会把内部立项材料准备完，你那边合同模板先发我看看。", confidence: 1 },
+          ],
+          actions: [
+            { text: "发送标注可协商条款的合同模板", quote: "合同模板今天就能发，我会标注可协商的条款。" },
+            { text: "两周后跟进集团预算审批进展", quote: "预算需要集团审批，走流程大概两周。" },
+          ],
+        },
+      ],
+    },
+    {
+      company: "星途教育",
+      department: "技术部",
+      name: "何雨桐",
+      title: "技术负责人",
+      contact: "heyutong@xingtu.edu",
+      notes: "教育行业技术决策人，正在考察直播互动方案。",
+      visits: [
+        {
+          title: "线上沟通 · 直播课堂方案讨论",
+          daysAgo: 10,
+          transcript:
+            "何雨桐：我们现在直播课堂延迟太高，学生端体验很差，互动基本卡顿。\n何雨桐：双减之后我们重点做素质教育，互动性要求比以前更高了。\n何雨桐：下周三可以安排一次技术测试，让我看看实际延迟表现。\n销售：好的，我会提前搭建测试环境，确保周三顺利测试。",
+          summary: "直播课堂延迟高影响体验，互动性要求高；下周三安排技术测试。",
+          facts: [
+            { dimension: "business", field: "业务方向", value: "双减后转向素质教育，互动性要求更高。", quote: "双减之后我们重点做素质教育，互动性要求比以前更高了。", confidence: 1 },
+            { dimension: "needs", field: "核心痛点", value: "直播课堂延迟高，学生端互动卡顿。", quote: "我们现在直播课堂延迟太高，学生端体验很差，互动基本卡顿。", confidence: 1 },
+            { dimension: "needs", field: "下一步", value: "下周三安排技术测试，验证实际延迟。", quote: "下周三可以安排一次技术测试，让我看看实际延迟表现。", confidence: 0.95 },
+          ],
+          actions: [
+            { text: "搭建测试环境准备周三技术测试", quote: "我会提前搭建测试环境，确保周三顺利测试。" },
+          ],
+        },
+      ],
+    },
+  ];
+
+  const createdIds = [];
+  for (const c of demoCases) {
+    const cid = id();
+    const did = departmentFor({ company: c.company, department: c.department });
+    db.prepare("INSERT INTO customers VALUES (?,?,?,?,?,?,?)").run(
+      cid, did, c.name, c.title, c.contact, c.notes, now(),
+    );
+    for (const v of c.visits) {
+      const vid = id();
+      const happenedAt = new Date(Date.now() - v.daysAgo * 86400000).toISOString();
+      db.prepare(
+        "INSERT INTO visits (id,customer_id,title,happened_at,created_at,transcript,summary,status,is_demo) VALUES (?,?,?,?,?,?,?,?,?)",
+      ).run(vid, cid, v.title, happenedAt, happenedAt, v.transcript, v.summary, "done", 1);
+      for (const f of v.facts) {
+        if (!v.transcript.includes(f.quote)) continue;
+        const fid = id();
+        const review = f.confidence < 1 ? "review" : "active";
+        db.prepare("INSERT INTO facts VALUES (?,?,?,?,?,?,?,?,?)").run(
+          fid, cid, f.dimension, f.field, f.value, review, f.confidence, "", now(),
+        );
+        db.prepare("INSERT INTO evidence VALUES (?,?,?)").run(fid, vid, f.quote);
+      }
+      for (const a of v.actions) {
+        if (!v.transcript.includes(a.quote)) continue;
+        const aid = id();
+        db.prepare("INSERT INTO actions VALUES (?,?,?,?,?,?,?)").run(
+          aid, cid, vid, a.text, "", 0, a.quote,
+        );
+      }
+    }
+    createdIds.push(cid);
+  }
+  res.json({ ids: createdIds });
 });
 app.use("/api", (req, res) => res.status(404).json({ error: "接口不存在" }));
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

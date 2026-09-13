@@ -384,7 +384,8 @@ function Dashboard({ data, openCustomer, navigate, setModal, notify, reload }) {
           <span className="hero-kicker">客户关系工作台</span>
           <h1>
             <span>记录每一次关系维护，</span>
-            <span>让客户档案随交流持续生长。</span>
+            <span>让客户档案随交流</span>
+            <span>持续生长。</span>
           </h1>
           <p>
             从拜访录音、客户判断到跟进行动，统一沉淀为可追溯、可持续更新的关系脉络。
@@ -479,14 +480,14 @@ function Dashboard({ data, openCustomer, navigate, setModal, notify, reload }) {
                         try {
                           const r = await api("/demo", { method: "POST" });
                           await reload();
-                          openCustomer(r.id);
-                          notify("已创建虚构示例，可随时删除");
+                          openCustomer(r.ids[0]);
+                          notify("已创建 5 位示例客户，可随时删除");
                         } catch (e) {
                           notify(e.message, true);
                         }
                       }}
                     >
-                      体验虚构示例
+                      添加 5 位示例客户
                     </Button>
                   </div>
                 }
@@ -1025,7 +1026,7 @@ function CustomerDetail({
                   </div>
                   <p>{v.summary || v.error || "打开查看录音与文字稿"}</p>
                   <small>
-                    {v.is_demo ? "虚构示例 · " : ""}
+                    {v.is_demo ? "示例 · " : ""}
                     {v.audio_name ? "含录音 · " : ""}
                     {v.transcript_length} 字文字稿 <ArrowUpRight size={13} />
                   </small>
@@ -1739,7 +1740,7 @@ function VisitModal({ vid, onClose, notify, reload }) {
           <div className="visit-meta">
             <span>
               {date(v.happened_at)}
-              {v.is_demo ? " · 虚构示例" : ""}
+              {v.is_demo ? " · 示例" : ""}
             </span>
             <Status status={v.status} />
           </div>
